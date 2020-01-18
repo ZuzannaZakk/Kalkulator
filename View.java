@@ -9,6 +9,26 @@ public class View extends JFrame {
     private static final int size = 300;
     private static final int heightLabel = 40;
 
+    public final static char znak0 = '0';
+    public final static char znak1 = '1';
+    public final static char znak2 = '2';
+    public final static char znak3 = '3';
+    public final static char znak4 = '4';
+    public final static char znak5 = '5';
+    public final static char znak6 = '6';
+    public final static char znak7 = '7';
+    public final static char znak8 = '8';
+    public final static char znak9 = '9';
+
+    public final static char znakDot = '.';
+    public final static char znakC = 'C';
+
+    public final static char znakPlus = '+';
+    public final static char znakMinus = '-';
+    public final static char znakDziel = '/';
+    public final static char znakMnoz = '*';
+    public final static char znakRownaSie = '=';
+
     private JButton button0;
     private JButton button1;
     private JButton button2;
@@ -32,86 +52,44 @@ public class View extends JFrame {
     //private JTextField filed;
     private JLabel field;
     private Model calculatorModel;
+    private Controler controler;
+
     /**
      *
      */
     public View(){
         calculatorModel = new Model();
-        WriteListener w = new WriteListener(); // sluchacz do dodawania cyfr
 
-        button0 = createButton("0", w);
-        button1 = createButton("1", w);
-        button2 = createButton("2", w);
-        button3 = createButton("3", w);
+        controler = new Controler(this, calculatorModel);
 
-        button4 = createButton("4", w);
-        button5 = createButton("5", w);
-        button6 = createButton("6", w);
-        button7 = createButton("7", w);
+        button0 = createButton(String.valueOf(znak0));
+        button1 = createButton(String.valueOf(znak1));
+        button2 = createButton(String.valueOf(znak2));
+        button3 = createButton(String.valueOf(znak3));
 
-        button8 = createButton("8", w);
-        button9 = createButton("9", w);
+        button4 = createButton(String.valueOf(znak4));
+        button5 = createButton(String.valueOf(znak5));
+        button6 = createButton(String.valueOf(znak6));
+        button7 = createButton(String.valueOf(znak7));
 
-        ActionListener addListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
+        button8 = createButton(String.valueOf(znak8));
+        button9 = createButton(String.valueOf(znak9));
 
-            }
-        };
-
-        ActionListener subListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-
-            }
-        };
-
-        ActionListener divListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-
-            }
-        };
-
-        ActionListener mulListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-
-            }
-        };
-
-        ActionListener eqListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-
-            }
-        };
-
-        ActionListener dotListener = new ActionListener(){
-            public void actionPerformed(ActionEvent e){
-
-            }
-        };
-
-        buttonPlus = createButton("+", addListener);
-        buttonMinus = createButton("-", subListener);
+        buttonPlus = createButton(String.valueOf(znakPlus));
+        buttonMinus = createButton(String.valueOf(znakMinus));
 
 
-        buttonDivide = createButton("/", divListener);
-        buttonMultiply = createButton("*", mulListener);
-        buttonEqual = createButton("=", eqListener);
-        buttonDot = createButton(".", dotListener);
+        buttonDivide = createButton(String.valueOf(znakDziel));
+        buttonMultiply = createButton(String.valueOf(znakMnoz));
+        buttonEqual = createButton(String.valueOf(znakRownaSie));
+        buttonDot = createButton(String.valueOf(znakDot));
 
-        ActionListener clearListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                calculatorModel.reset();
-                field.setText(calculatorModel.toString());
-            }
-        };
+        buttonClear = createButton(String.valueOf(znakC));
 
-        buttonClear = createButton("C", clearListener);
+        field = new JLabel(calculatorModel.getResult(), JLabel.RIGHT);
+        setFontSize(30);
+        field.setVerticalTextPosition(JLabel.CENTER);
 
-
-        //filed = new JTextField("");
-        field = new JLabel(calculatorModel.toString(), JLabel.RIGHT);
-        Font font = field.getFont();
-        field.setFont(new Font(font.getName(), Font.PLAIN, 30));
 
         field.setPreferredSize(new Dimension(size, heightLabel));
         field.setMinimumSize(new Dimension(size, heightLabel));
@@ -127,14 +105,14 @@ public class View extends JFrame {
         centerPanel.add(button9);
         centerPanel.add(buttonMultiply);
 
-        centerPanel.add(button6);
-        centerPanel.add(button5);
         centerPanel.add(button4);
+        centerPanel.add(button5);
+        centerPanel.add(button6);
         centerPanel.add(buttonMinus);
 
-        centerPanel.add(button3);
-        centerPanel.add(button2);
         centerPanel.add(button1);
+        centerPanel.add(button2);
+        centerPanel.add(button3);
         centerPanel.add(buttonPlus);
 
         centerPanel.add(button0);
@@ -151,24 +129,35 @@ public class View extends JFrame {
         int y = kit.getScreenSize().height/2 - this.getHeight()/2;
         this.setLocation(x,y);
     }
-    private JButton createButton(String text, ActionListener listener){
+    private JButton createButton(String text){
         JButton button = new JButton(text);
-        button.addActionListener(listener);
+        button.addActionListener(controler);
         return button;
     }
 
-    class WriteListener implements ActionListener{
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String znak = e.getActionCommand();
-            //String newText = field.getText() + znak;
-            //field.setText(newText);
-            int cyfra = Integer.parseInt(znak);
-            calculatorModel.addCyfra(cyfra);
-            field.setText(calculatorModel.toString());
+    public void setView(String result)
+    {
+        if(result.equals(Model.error)) {
+            setFontSize(20);
+            field.setText("Nie można dzielić przez zero.");
         }
+
+        else{
+            setFontSize(30);
+            field.setText(result);
+        }
+
     }
 
+    /**
+     * Funkcja zmienia rozmiar czcionki
+     * @param size - rozmiar czcionki
+     */
+    private void setFontSize(int size)
+    {
+        Font font = field.getFont();
+        field.setFont(new Font(font.getName(), Font.PLAIN, size));
+    }
 
 
     public static void main(String []args){
